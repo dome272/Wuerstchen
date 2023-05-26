@@ -1,3 +1,8 @@
+#############################################################################################
+#                        Code taken from Pablos implementation:                             #
+#    https://github.com/pabloppp/pytorch-tools/blob/master/torchtools/utils/diffusion.py    #
+#############################################################################################
+
 import torch
 
 
