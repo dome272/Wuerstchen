@@ -101,7 +101,7 @@ def train(gpu_id, world_size, n_nodes):
 
     # - vqmodel -
     vqmodel = VQModel().to(device)
-    vqmodel.load_state_dict(torch.load(f"../../models/vqgan/vqgan_f4_v1_500k.pt", map_location=device)['state_dict'])
+    vqmodel.load_state_dict(torch.load("models/vqgan_f4_v1_500k.pt", map_location=device)['state_dict'])
     vqmodel.eval().requires_grad_(False)
 
     # - CLIP text encoder
