@@ -1,3 +1,4 @@
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]([https://colab.research.google.com/drive/1geY_Z8m8dyjrky6uwiMepwySTWkVYl1j?usp=sharing](https://colab.research.google.com/drive/1JMLGW1hjsFDDNFYf9e9ABEO5VEDts3K4?usp=sharing))
 # Würstchen
  ![main-figure-github](https://github.com/dome272/wuerstchen/assets/61938694/5a047f1a-01ab-4747-b7ed-15c2d9969339)
 
