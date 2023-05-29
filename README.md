@@ -10,7 +10,7 @@ Würstchen is a new framework for training text-conditional models by moving the
 You can use the model simply through the notebooks here. The [Stage B](https://github.com/dome272/wuerstchen/blob/main/w%C3%BCrstchen-stage-B.ipynb) notebook only for reconstruction and the [Stage C](https://github.com/dome272/wuerstchen/blob/main/w%C3%BCrstchen-stage-C.ipynb) notebook is for the text-conditional generation.
 
 ## Train your own Würstchen
-We provide training scripts for both [Stage B](https://github.com/dome272/wuerstchen/blob/main/train_stage_B.py) and [Stage C](https://github.com/dome272/wuerstchen/blob/main/train_stage_C.py).
+We provide training scripts for both [Stage B](https://github.com/dome272/wuerstchen/blob/main/train_stage_B.py) and [Stage C](https://github.com/dome272/wuerstchen/blob/main/train_stage_C.py). You can also try the text-to-image generation on [Google Colab](https://colab.research.google.com/drive/1JMLGW1hjsFDDNFYf9e9ABEO5VEDts3K4?usp=sharing).
 
 ## Download Models
 | Model           | Download                                             | Parameters      | Conditioning                       |
