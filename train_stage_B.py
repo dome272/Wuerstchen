@@ -18,6 +18,7 @@ from vqgan import VQModel
 from modules import Paella, sample, EfficientNetEncoder, Wrapper
 from utils import WebdatasetFilter, transforms, effnet_preprocess, identity
 import transformers
+from transformers.utils import is_torch_bf16_available, is_torch_tf32_available
 transformers.utils.logging.set_verbosity_error()
 
 # PARAMETERS
@@ -65,8 +66,11 @@ def train(gpu_id, world_size, n_nodes):
     ddp_setup(gpu_id, world_size, n_nodes, node_id)  # <--- DDP
     device = torch.device(gpu_id)
 
-    torch.backends.cuda.matmul.allow_tf32 = True
-    torch.backends.cudnn.allow_tf32 = True
+    # only ampere gpu architecture allows these
+    _float16_dtype = torch.float16 if not is_torch_bf16_available() else torch.bfloat16
+    if is_torch_tf32_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
 
     # --- PREPARE DATASET ---
     dataset = wds.WebDataset(
@@ -170,7 +174,7 @@ def train(gpu_id, world_size, n_nodes):
         images, captions = next(dataloader_iterator)
         images = images.to(device)
 
-        with torch.cuda.amp.autocast(dtype=torch.bfloat16), torch.no_grad():
+        with torch.cuda.amp.autocast(dtype=_float16_dtype), torch.no_grad():
             if np.random.rand() < 0.05:  # 90% of the time, drop the CLIP text embeddings (indepentently)
                 clip_captions = [''] * len(captions)  # 5% of the time drop all the captions
             else:
@@ -186,7 +190,7 @@ def train(gpu_id, world_size, n_nodes):
 
             effnet_preproc = effnet_preprocess(images)
 
-        with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+        with torch.cuda.amp.autocast(dtype=_float16_dtype):
             pred = model(noised_latents, t, effnet_preproc, clip_text_embeddings)
             loss = criterion(pred, latents)
             loss = ((loss * loss_weight).sum(dim=[1, 2]) / loss_weight.sum(dim=[1, 2])).mean()

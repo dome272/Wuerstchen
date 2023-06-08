@@ -1,0 +1,4 @@
+webdataset
+transformers
+warmup_scheduler
+pytorch-tools @ git+https://github.com/pabloppp/pytorch-tools@master
