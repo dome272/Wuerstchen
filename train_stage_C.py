@@ -20,6 +20,8 @@ from vqgan import VQModel
 from modules import Paella, sample, EfficientNetEncoder, Prior
 from utils import WebdatasetFilter, transforms, effnet_preprocess, identity
 import transformers
+from transformers.utils import is_torch_bf16_available, is_torch_tf32_available
+
 
 transformers.utils.logging.set_verbosity_error()
 
@@ -67,8 +69,11 @@ def train(gpu_id, world_size, n_nodes):
     ddp_setup(gpu_id, world_size, n_nodes, node_id)  # <--- DDP
     device = torch.device(gpu_id)
 
-    torch.backends.cuda.matmul.allow_tf32 = True
-    torch.backends.cudnn.allow_tf32 = True
+    # only ampere gpu architecture allows these
+    _float16_dtype = torch.float16 if not is_torch_bf16_available() else torch.bfloat16
+    if is_torch_tf32_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
 
     # --- PREPARE DATASET ---
     dataset = wds.WebDataset(
@@ -194,7 +199,7 @@ def train(gpu_id, world_size, n_nodes):
 
         with torch.no_grad():
             effnet_features = effnet(effnet_preprocess(images))
-            with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+            with torch.cuda.amp.autocast(dtype=_float16_dtype):
                 if np.random.rand() < 0.05:  # 90% of the time, drop the CLIP text embeddings (independently)
                     clip_captions = [''] * len(captions)  # 5% of the time drop all the captions
                 else:
@@ -205,7 +210,7 @@ def train(gpu_id, world_size, n_nodes):
             t = (1 - torch.rand(images.size(0), device=device)).mul(1.08).add(0.001).clamp(0.001, 1.0)
             noised_embeddings, noise = diffuzz.diffuse(effnet_features, t)
 
-        with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+        with torch.cuda.amp.autocast(dtype=_float16_dtype):
             pred_noise = model(noised_embeddings, t, clip_text_embeddings)
             loss = nn.functional.mse_loss(pred_noise, noise, reduction='none').mean(dim=[1, 2, 3])
             loss_adjusted = (loss * diffuzz.p2_weight(t)).mean() / grad_accum_steps
@@ -299,7 +304,7 @@ def train(gpu_id, world_size, n_nodes):
                 effnet_embeddings_uncond = torch.zeros_like(effnet_features)
                 noised_embeddings, noise = diffuzz.diffuse(effnet_features, t)
 
-                with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+                with torch.cuda.amp.autocast(dtype=_float16_dtype):
                     pred_noise = model(noised_embeddings, t, clip_text_embeddings)
                     pred = diffuzz.undiffuse(noised_embeddings, t, torch.zeros_like(t), pred_noise)
                     sampled = diffuzz.sample(model.module, {'c': clip_text_embeddings},
