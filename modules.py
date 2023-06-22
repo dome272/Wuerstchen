@@ -498,52 +498,59 @@ class Paella(nn.Module):
             self_params.data = self_params.data * beta + src_params.data * (1 - beta)
 
 
-def sample(model, model_inputs, latent_shape, unconditional_inputs=None, init_x=None, steps=8, renoise_steps=None,
-           temperature=(1.0, 0.2), cfg=(2.0, 2.0), mode='multinomial', t_start=1.0, t_end=0.0,
-           sampling_conditional_steps=None, sampling_quant_steps=None):  # 'quant', 'multinomial', 'argmax'
+def sample(model, model_inputs, latent_shape, unconditional_inputs=None, init_x=None, steps=12, renoise_steps=None, temperature = (0.7, 0.3), cfg=(8.0, 8.0), mode = 'multinomial', t_start=1.0, t_end=0.0, sampling_conditional_steps=None, sampling_quant_steps=None, attn_weights=None): # 'quant', 'multinomial', 'argmax'
     device = unconditional_inputs["byt5"].device
     if sampling_conditional_steps is None:
         sampling_conditional_steps = steps
     if sampling_quant_steps is None:
         sampling_quant_steps = steps
     if renoise_steps is None:
-        renoise_steps = steps - 1
+        renoise_steps = steps-1
     if unconditional_inputs is None:
         unconditional_inputs = {k: torch.zeros_like(v) for k, v in model_inputs.items()}
-    with torch.inference_mode():
-        init_noise = torch.randint(0, model.num_labels, size=latent_shape, device=device)
-        if init_x != None:
-            sampled = init_x
+    intermediate_images = []
+    # with torch.inference_mode():
+    init_noise = torch.randint(0, model.num_labels, size=latent_shape, device=device)
+    if init_x != None:
+        sampled = init_x
+    else:
+        sampled = init_noise.clone()
+    t_list = torch.linspace(t_start, t_end, steps+1)
+    temperatures = torch.linspace(temperature[0], temperature[1], steps)
+    cfgs = torch.linspace(cfg[0], cfg[1], steps)
+    if cfg is not None:
+        model_inputs = {k:torch.cat([v, v_u]) for (k, v), (k_u, v_u) in zip(model_inputs.items(), unconditional_inputs.items())}
+    for i, tv in enumerate(t_list[:steps]):
+        if i >= sampling_quant_steps:
+            mode = "quant"
+        t = torch.ones(latent_shape[0], device=device) * tv
+
+        if cfg is not None and i < sampling_conditional_steps:
+            logits, uncond_logits = model(torch.cat([sampled]*2), torch.cat([t]*2), **model_inputs).chunk(2)
+            logits = logits * cfgs[i] + uncond_logits * (1-cfgs[i])
         else:
-            sampled = init_noise.clone()
-        t_list = torch.linspace(t_start, t_end, steps + 1)
-        temperatures = torch.linspace(temperature[0], temperature[1], steps)
-        cfgs = torch.linspace(cfg[0], cfg[1], steps)
-        for i, tv in enumerate(t_list[:steps]):
-            if i >= sampling_quant_steps:
-                mode = "quant"
-            t = torch.ones(latent_shape[0], device=device) * tv
-
             logits = model(sampled, t, **model_inputs)
-            if cfg is not None and i < sampling_conditional_steps:
-                logits = logits * cfgs[i] + model(sampled, t, **unconditional_inputs) * (1 - cfgs[i])
-            scores = logits.div(temperatures[i]).softmax(dim=1)
 
-            if mode == 'argmax':
-                sampled = logits.argmax(dim=1)
-            elif mode == 'multinomial':
-                sampled = scores.permute(0, 2, 3, 1).reshape(-1, logits.size(1))
-                sampled = torch.multinomial(sampled, 1)[:, 0].view(logits.size(0), *logits.shape[2:])
-            elif mode == 'quant':
-                sampled = scores.permute(0, 2, 3, 1) @ vqmodel.vquantizer.codebook.weight.data
-                sampled = vqmodel.vquantizer.forward(sampled, dim=-1)[-1]
-            else:
-                raise Exception(f"Mode '{mode}' not supported, use: 'quant', 'multinomial' or 'argmax'")
+        scores = logits.div(temperatures[i]).softmax(dim=1)
 
-            if i < renoise_steps:
-                t_next = torch.ones(latent_shape[0], device=device) * t_list[i + 1]
-                sampled = model.add_noise(sampled, t_next, random_x=init_noise)[0]
-    return sampled
+        if mode == 'argmax':
+            sampled = logits.argmax(dim=1)
+        elif mode == 'multinomial':
+            sampled = scores.permute(0, 2, 3, 1).reshape(-1, logits.size(1))
+            sampled = torch.multinomial(sampled, 1)[:, 0].view(logits.size(0), *logits.shape[2:])
+        elif mode == 'quant':
+            sampled = scores.permute(0, 2, 3, 1) @ vqmodel.vquantizer.codebook.weight.data
+            sampled = vqmodel.vquantizer.forward(sampled, dim=-1)[-1]
+        else:
+            raise Exception(f"Mode '{mode}' not supported, use: 'quant', 'multinomial' or 'argmax'")
+
+        intermediate_images.append(sampled)
+
+        if i < renoise_steps:
+            t_next = torch.ones(latent_shape[0], device=device) * t_list[i+1]
+            sampled = model.add_noise(sampled, t_next, random_x=init_noise)[0]
+            intermediate_images.append(sampled)
+    return sampled, intermediate_images
 
 
 class EfficientNetEncoder(nn.Module):
