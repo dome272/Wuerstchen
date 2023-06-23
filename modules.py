@@ -567,7 +567,7 @@ class EfficientNetEncoder(nn.Module):
         )
 
     def forward(self, x):
-        return self.mapper(self.backbone(x))
+        return self.mapper(self.backbone(x)).add(1.).div(42.)
 
 
 class Wrapper(nn.Module):
