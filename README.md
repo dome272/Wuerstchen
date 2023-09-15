@@ -9,6 +9,32 @@ Würstchen is a new framework for training text-conditional models by moving the
 ## Use Würstchen
 You can use the model simply through the notebooks here. The [Stage B](https://github.com/dome272/wuerstchen/blob/main/w%C3%BCrstchen-stage-B.ipynb) notebook only for reconstruction and the [Stage C](https://github.com/dome272/wuerstchen/blob/main/w%C3%BCrstchen-stage-C.ipynb) notebook is for the text-conditional generation. You can also try the text-to-image generation on [Google Colab](https://colab.research.google.com/drive/1KeN407dItcjLcWdMLrByZ8mPa1MT2_DJ?usp=sharing).
 
+### Using in 🧨 diffusers
+
+Würstchen is fully integrated into the [`diffusers` library](https://huggingface.co/docs/diffusers). Here's how to use it: 
+
+```python
+# pip install -U transformers accelerate diffusers
+
+import torch
+from diffusers import AutoPipelineForText2Image
+from diffusers.pipelines.wuerstchen import DEFAULT_STAGE_C_TIMESTEPS
+
+pipe = AutoPipelineForText2Image.from_pretrained("warp-ai/wuerstchen", torch_dtype=torch.float16).to("cuda")
+
+caption = "Anthropomorphic cat dressed as a fire fighter"
+images = pipe(
+    caption, 
+    width=1024,
+    height=1536,
+    prior_timesteps=DEFAULT_STAGE_C_TIMESTEPS,
+    prior_guidance_scale=4.0,
+    num_images_per_prompt=2,
+).images
+```
+
+Refer to the [official documentation](https://huggingface.co/docs/diffusers/main/en/api/pipelines/wuerstchen) to learn more. 
+
 ## Train your own Würstchen
 Training Würstchen is considerably faster and cheaper than other text-to-image as it trains in a much smaller latent space of 12x12.
 We provide training scripts for both [Stage B](https://github.com/dome272/wuerstchen/blob/main/train_stage_B.py) and [Stage C](https://github.com/dome272/wuerstchen/blob/main/train_stage_C.py). 
