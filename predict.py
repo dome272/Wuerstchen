@@ -11,8 +11,6 @@ from cog import BasePredictor, Input, Path
 class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make running multiple predictions efficient"""
-        # self.pipeline = AutoPipelineForText2Image.from_pretrained("warp-ai/wuerstchen", cache_dir="model_cache", torch_dtype=torch.float16).to("cuda")
-
         self.prior_pipeline = WuerstchenPriorPipeline.from_pretrained(
             "warp-ai/wuerstchen-prior",
             cache_dir="model_cache",
