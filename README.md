@@ -42,8 +42,8 @@ We provide training scripts for both [Stage B](https://github.com/dome272/wuerst
 ## Download Models
 | Model           | Download                                             | Parameters      | Conditioning                       | Training Steps | Resolution |
 |-----------------|------------------------------------------------------|-----------------|------------------------------------|--------------------|------|
-| Würstchen v1    | [Huggingface](https://huggingface.co/dome272/wuerstchen) | 1B (Stage C) + 600M (Stage B) + 19M (Stage A)  | CLIP-H-Text | 800.000| 512x512 |
-| Würstchen v2    | [Huggingface](https://huggingface.co/dome272/wuerstchen) | 1B (Stage C) + 600M (Stage B) + 19M (Stage A)  | CLIP-bigG-Text | 918.000| 1024x1024 |
+| Würstchen v1    | [Hugging Face](https://huggingface.co/dome272/wuerstchen) | 1B (Stage C) + 600M (Stage B) + 19M (Stage A)  | CLIP-H-Text | 800.000| 512x512 |
+| Würstchen v2    | [Hugging Face](https://huggingface.co/dome272/wuerstchen) | 1B (Stage C) + 600M (Stage B) + 19M (Stage A)  | CLIP-bigG-Text | 918.000| 1024x1024 |
 
 ## Acknowledgment
 Special thanks to [Stability AI](https://stability.ai/) for providing compute for our research.
