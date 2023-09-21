@@ -1,6 +1,6 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1KeN407dItcjLcWdMLrByZ8mPa1MT2_DJ?usp=sharing)
 # Würstchen
-![main-figure-github](https://github.com/dome272/wuerstchen/assets/61938694/cc811cfd-c603-4767-bdc7-4cd1539daa35)
+![huggingface-blog-post-thumbnail](https://github.com/dome272/Wuerstchen/assets/61938694/b4253c80-2a88-41a5-80e5-cadfe17a05e0)
 
 
 ## What is this?
