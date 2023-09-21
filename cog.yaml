@@ -1,0 +1,17 @@
+# Configuration for Cog ⚙️
+# Reference: https://github.com/replicate/cog/blob/main/docs/yaml.md
+
+build:
+  gpu: true
+  system_packages:
+    - "libgl1-mesa-glx"
+    - "libglib2.0-0"
+  python_version: "3.11"
+  python_packages:
+    - "accelerate==0.22.0"
+    - "diffusers @ git+https://github.com/dome272/diffusers@911e506f43089ef7b0c582bf074f342575a803be"
+    - "invisible-watermark==0.2.0"
+    - "Pillow==10.0.0"
+    - "torch==2.0.1"
+    - "transformers==4.32.1"
+predict: "predict.py:Predictor"
