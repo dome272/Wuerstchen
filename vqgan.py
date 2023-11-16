@@ -111,8 +111,8 @@ class VQModel(nn.Module):
         x = self.out_block(x)
         return x
         
-    def forward(self, x, quantize=False):
-        qe, x, _, vq_loss = self.encode(x, quantize)
+    def forward(self, x):
+        qe, x, _, vq_loss = self.encode(x)
         x = self.decode(qe)
         return x, vq_loss
 
