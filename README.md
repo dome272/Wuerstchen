@@ -47,3 +47,16 @@ We provide training scripts for both [Stage B](https://github.com/dome272/wuerst
 
 ## Acknowledgment
 Special thanks to [Stability AI](https://stability.ai/) for providing compute for our research.
+
+## Citation
+If you use our approach in your research or were inspired by it, we would be thrilled if you cite our paper:
+```
+@inproceedings{
+            pernias2024wrstchen,
+            title={W\"urstchen: An Efficient Architecture for Large-Scale Text-to-Image Diffusion Models},
+            author={Pablo Pernias and Dominic Rampas and Mats Leon Richter and Christopher Pal and Marc Aubreville},
+            booktitle={The Twelfth International Conference on Learning Representations},
+            year={2024},
+            url={https://openreview.net/forum?id=gU58d5QeGv}
+      }
+```
