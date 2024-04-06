@@ -1,5 +1,5 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1KeN407dItcjLcWdMLrByZ8mPa1MT2_DJ?usp=sharing)
-# Würstchen
+# Würstchen (ICLR 2024, oral)
 ![huggingface-blog-post-thumbnail](https://github.com/dome272/Wuerstchen/assets/61938694/b4253c80-2a88-41a5-80e5-cadfe17a05e0)
 
 
